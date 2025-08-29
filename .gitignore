@@ -1,0 +1,20 @@
+# Virtualenv
+venv/
+.venv/
+
+# Alembic
+alembic/env.py
+alembic.ini
+alembic/versions/
+
+# IDE
+.idea/
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
