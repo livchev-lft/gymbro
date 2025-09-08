@@ -1,19 +1,25 @@
-import pytest
+import asyncio
 import sqlalchemy
-from config import get_settings
+from sqlalchemy.ext.asyncio import create_async_engine
+from app.core.config import get_settings
 import redis
 from fastapi.testclient import TestClient
-from app.main import app
+from main import app
 
-def test_postgres_connection():
+# Асинхронная проверка PostgreSQL
+async def check_postgres_connection():
     settings = get_settings()
-    engine = sqlalchemy.create_engine(settings.DATABASE_URL)
+    engine = create_async_engine(settings.DATABASE_URL, echo=False)
     try:
-        with engine.connect() as conn:
-            result = conn.execute(sqlalchemy.text("SELECT 1"))
+        async with engine.connect() as conn:
+            result = await conn.execute(sqlalchemy.text("SELECT 1"))
             assert result.scalar() == 1
     finally:
-        engine.dispose()
+        await engine.dispose()
+
+# Синхронная обёртка для Pytest
+def test_postgres_connection():
+    asyncio.run(check_postgres_connection())
 
 def test_redis_connection():
     settings = get_settings()
