@@ -31,11 +31,13 @@ class RefreshToken(Base):
     id = Column(Integer, primary_key=True)
     token = Column(String, unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.user_id"))
+    session_id = Column(String, ForeignKey("session_tokens.session_id"), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     expires_at = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
 
     user = relationship("User", back_populates="refresh_tokens")
+    session = relationship("SessionToken")
 
 Index("idx_refresh_token", RefreshToken.token)
 
@@ -45,8 +47,8 @@ class SessionToken(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.user_id"))
     session_id = Column(String, unique=True, nullable=False)  # UUID
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
-    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    expires_at = Column(DateTime(timezone=True), nullable=False)
     is_active = Column(Boolean, default=True)
 
     user = relationship("User", back_populates="sessions")
