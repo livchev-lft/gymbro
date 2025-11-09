@@ -1,19 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import get_db
-from app.services.token_service import TokenService
-from app.services.user_service import UserService
-
-from app.schemas.auth.request import LoginRequest, RefreshRequest, RegisterRequest
+from app.schemas.auth.request import LoginRequest, RefreshRequest
 from app.schemas.auth.response import TokenResponse
+from app.services.register import TokenService
+from app.services.user_service import UserService
 
 router = APIRouter()
 
 @router.post("/register", response_model=TokenResponse)
-async def register(data: RegisterRequest, request: Request, db: AsyncSession = Depends(get_db)):
+async def register(user_id : int, request: Request, db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)
-    user = await user_service.create_user(data)
+    user = await user_service.create_user(user_id)
     if not user:
         raise HTTPException(status_code=400, detail="User already exists")
 

@@ -3,6 +3,9 @@ from app.models.user import SessionToken, RefreshToken
 from app.repositories.base import BaseRepository
 
 class SessionRepository(BaseRepository):
+    def __init__(self, db):
+        super().__init__(SessionToken, db)
+
     async def create_session(self, user_id: int):
         import uuid, datetime
         session_id = str(uuid.uuid4())

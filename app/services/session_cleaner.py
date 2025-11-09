@@ -13,18 +13,16 @@ async def clean_expired_sessions():
             now = datetime.datetime.now(datetime.timezone.utc)
             result = await db.execute(select(SessionToken).where(
                 SessionToken.expires_at < now,
-                SessionToken.is_active == True
+                SessionToken.is_active.is_(True)
             ))
             expired_sessions = result.scalars().all()
 
             for session in expired_sessions:
-                # Удаляем ключ refresh token из Redis
                 keys = await redis_client.keys(f"refresh:{session.session_id}:*")
                 if keys:
                     await redis_client.delete(*keys)
 
-                # Деактивируем сессию в БД
-                stmt = update(SessionToken).where(SessionToken.id == session.id).values(is_active=False)
+                stmt = update(SessionToken).where(SessionToken.id.__eq__(session.id)).values(is_active=False)
                 await db.execute(stmt)
                 print(f"🗑️ Expired session removed: {session.session_id} for user {session.user_id}")
 

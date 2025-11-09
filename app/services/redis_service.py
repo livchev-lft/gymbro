@@ -1,9 +1,9 @@
-import redis.asyncio
+import redis.asyncio as aioredis
 
 REFRESH_TOKEN_EXPIRE = 30 * 24 * 60 * 60  # 30 дней
 
 class RedisService:
-    def __init__(self, client: redis.Redis):
+    def __init__(self, client: aioredis.Redis):
         self.client = client
 
     async def store_refresh_token(self, token: str, session_id: str):
